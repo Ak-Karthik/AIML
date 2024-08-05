@@ -1,0 +1,35 @@
+def dfs(G,S,dfstree):
+	for n in G[S]:
+		if n not in dfstree:
+			dfstree[n]=S
+			dfs(G,n,dfstree)
+	return dfstree
+graph={}
+n=int(input("enter number of vertices in graph:"))
+for i in range(n):
+	neighbour=[]
+	node=input("enter name of node:")
+	neighbour=input("enter name of neighbour node:").split()
+	graph[node]=neighbour
+S=input("enter starting node name:")
+print("DFS traversal")
+dfstree={S:None}
+print(dfs(graph,S,dfstree))
+
+
+enter number of vertices in graph:6
+enter name of node:a
+enter name of neighbour node:b c
+enter name of node:b
+enter name of neighbour node:a d f
+enter name of node:c
+enter name of neighbour node:a d
+enter name of node:d
+enter name of neighbour node:b c e f
+enter name of node:e
+enter name of neighbour node:d
+enter name of node:f
+enter name of neighbour node:b d
+enter starting node name:a
+DFS traversal
+{'a': None, 'b': 'a', 'd': 'b', 'c': 'd', 'e': 'd', 'f': 'd'}

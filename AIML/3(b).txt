@@ -1,0 +1,46 @@
+import numpy as np
+import pandas as pd
+import statistics
+import math
+from matplotlib import pyplot as plt
+import statsmodels.formula.api as smf
+import requests # Module to process http/https requests
+remote_url ="http://54.243.252.9/engr-1330-webroot/8-Labs/Lab29/heart.data.csv"
+rget = requests.get(remote_url, allow_redirects=True)
+open('heart.data.csv','wb'). write(rget.content);
+heartattack = pd.read_csv('heart.data.csv')
+data=heartattack.rename(columns={"biking":"Bike","smoking":"Smoke","heart.disease":"Disease"})
+print(data.head(3))
+# Initialise and fit linear regression model using 'statsmodels'
+model = smf.ols('Disease ~ Bike + Smoke', data=data)
+model = model.fit()
+print(model.summary())
+dir(model)
+# activate to find attributes
+intercept = model.params[0]
+slope = model.params[1]
+Rsquared = model.rsquared
+RMSE = math.sqrt(model.mse_total)
+# Predict values
+heartfail = model.predict()
+titleline = 'Disease Index versus Lifestyle Variables \n'  + 'Rsquared= ' + str(round(Rsquared,3)) + '\n RMSE = ' + str(round(RMSE,2))
+# Plot regression against actual data
+plt.figure(figsize=(12, 6))
+plt.plot(data['Bike'], data['Disease'], 'o')         # scatter plot showing actual data
+plt.plot(data['Bike'], heartfail, marker = 's' ,color ='r', linewidth=0)   # regression line
+plt.xlabel('Biking (miles/week)')
+plt.ylabel('Disease Index (Admissions/100,000 as per MMWR)')
+plt.legend(['Observations','Model Prediction'])
+plt.title(titleline)
+plt.show()
+titleline ='Disease Index versus Lifestyle Variables \n'+'Rsquared =' + str(round(Rsquared,3)) + '\n RMSE =' + str(round(RMSE,2))
+# Plot regression against actual data – What do we see?
+plt.figure(figsize=(12, 6))
+plt.plot(data['Smoke'], data['Disease'], 'o')           # scatter plot showing actual data
+plt.plot(data['Smoke'], heartfail, marker = 's' ,color ='r', linewidth=0)   # regression line
+plt.xlabel('Smoking (packs/week)')
+plt.ylabel('Disease Index (Admissions/100,000 as per MMWR)')
+plt.legend(['Observations','Model Prediction'])
+plt.title(titleline)
+plt.show()
+print(model.summary())

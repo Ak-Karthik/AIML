@@ -1,0 +1,152 @@
+#importing library
+import math
+import random
+import csv
+
+# the categorical class names are changed to numeric data
+# eg: yes and no encoded to 1 and 0
+# Encoding class labels with proper numeric values
+def encode_class(mydata):
+    classes = {}
+    count = 0
+    for instance in mydata:
+        if instance[-1] not in classes:
+            classes[instance[-1]] = count
+            count += 1
+    for instance in mydata:
+        instance[-1] = classes[instance[-1]]
+    return mydata
+      
+
+# Splitting the data
+def splitting(mydata, ratio):
+    train_num = int(len(mydata) * ratio)
+    train = []
+    # initially testset will have all the dataset
+    test = list(mydata)
+    while len(train) < train_num:
+        # index generated randomly from range 0
+        # to length of testset
+        index = random.randrange(len(test))
+        # from testset, pop data rows and put it in train
+        train.append(test.pop(index))
+    return train, test
+
+# Group the data rows under each class yes or
+# no in dictionary eg: dict[yes] and dict[no]
+def groupUnderClass(mydata):
+    dict = {}
+    for i in range(len(mydata)):
+        if mydata[i][-1] not in dict:
+            dict[mydata[i][-1]] = []
+        dict[mydata[i][-1]].append(mydata[i])
+    return dict
+ 
+# Calculating Mean
+def mean(numbers):
+    return sum(numbers) / float(len(numbers))
+ 
+# Calculating Standard Deviation
+# Calculating Standard Deviation
+def std_dev(numbers):
+    if len(numbers) > 1:
+        avg = mean(numbers)
+        variance = sum([pow(x - avg, 2) for x in numbers]) / float(len(numbers) - 1)
+        return math.sqrt(variance)
+    else:
+        return 0  # Return 0 if there's only one data point
+
+def MeanAndStdDev(mydata):
+    if not mydata:
+        return []  # Return empty list if data is empty
+    info = [(mean(attribute), std_dev(attribute)) for attribute in zip(*mydata)]
+    if info:
+        del info[-1]  # Delete last element only if info is not empty
+    return info
+ 
+# find Mean and Standard Deviation under each class
+def MeanAndStdDevForClass(mydata):
+    info = {}
+    dict = groupUnderClass(mydata)
+    for classValue, instances in dict.items():
+        info[classValue] = MeanAndStdDev(instances)
+    return info
+ 
+# Calculate Gaussian Probability Density Function
+# Calculate Gaussian Probability Density Function
+def calculateGaussianProbability(x, mean, stdev):
+    exponent = math.exp(-(math.pow(x - mean, 2) / (2 * math.pow(stdev, 2))))
+    return (1 / (math.sqrt(2 * math.pi) * stdev)) * exponent
+
+ 
+# Calculate Class Probabilities
+# Calculate Class Probabilities
+def calculateClassProbabilities(info, test):
+    probabilities = {}
+    for classValue, classSummaries in info.items():
+        probabilities[classValue] = 1
+        for i in range(min(len(classSummaries), len(test))):  # Ensure looping within bounds
+            mean_val, std_dev_val = classSummaries[i]
+            X = test[i]
+            probabilities[classValue] *= calculateGaussianProbability(X, mean_val, std_dev_val)
+    return probabilities
+
+ 
+# Make prediction – highest probability is the prediction
+def predict(info, test):
+    probabilities = calculateClassProbabilities(info, test)
+    bestLabel, bestProb = None, -1
+    for classValue, probability in probabilities.items():
+        if bestLabel is None or probability > bestProb:
+            bestProb = probability
+            bestLabel = classValue
+    return bestLabel
+ 
+# returns predictions for a set of examples
+def getPredictions(info, test):
+    predictions = []
+    for i in range(len(test)):
+        result = predict(info, test[i])
+        predictions.append(result)
+    return predictions
+ 
+# Accuracy score
+# Accuracy score
+def accuracy_rate(test, predictions):
+    correct = 0
+    for i in range(len(test)):
+        if int(test[i][-1]) == predictions[i]:  # Convert test label to integer for comparison
+            correct += 1
+    return (correct / float(len(test))) * 100.0
+
+ 
+# driver code
+# add the data path in your system
+filename = r'D:\CLG ACADEMICS\SIXTH SEMESTER\AIML\pima-indians-diabetes.csv'
+ 
+# load the file and store it in mydata list
+with open(filename, "r") as file:
+    mydata = list(csv.reader(file))
+
+mydata = encode_class(mydata)
+for i in range(len(mydata)):
+    mydata[i] = [float(x) for x in mydata[i]]
+ 
+
+#70% of data is training data and 30% is test data used for testing
+ratio = 0.7
+train_data, test_data = splitting(mydata, ratio)
+print("Total number of data:", len(mydata))
+print("Training data:", len(train_data))
+print("Test data:", len(test_data))
+ 
+# Prepare model
+info = MeanAndStdDevForClass(train_data)
+
+# Test model
+predictions = getPredictions(info, test_data)
+accuracy = accuracy_rate(test_data, predictions)
+
+print("Accuracy of the model is: ", accuracy)
+
+#Dataset: Indian_Diabetes Dataset (pima-indians-diabetes.csv)

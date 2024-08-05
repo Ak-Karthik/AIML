@@ -1,0 +1,48 @@
+import heapq
+
+def mem_astaralgo(st_node, stop_node, max_depth):
+    open_set = [(heuristic(st_node), st_node, 0)]
+    closed_set = set()
+    g = {st_node: 0}
+    parents = {st_node: st_node}
+    
+    while open_set:
+        _, n, depth = heapq.heappop(open_set)
+        if n == stop_node:
+            path = []
+            while parents[n] != n:
+                path.append(n)
+                n = parents[n]
+            path.append(st_node)
+            path.reverse()
+            print("Path found:", path)
+            return path
+        
+        if n in closed_set or depth >= max_depth:
+            continue
+        
+        for m, weight in get_neighbors(n):
+            if m not in closed_set:
+                g_cost = g[n] + weight
+                if m not in g or g_cost < g[m]:
+                    g[m] = g_cost
+                    heapq.heappush(open_set, (g_cost + heuristic(m), m, depth + 1))
+                    parents[m] = n
+        
+        closed_set.add(n)
+    
+    print("Path doesn't exist within depth limit!")
+    return None
+
+def get_neighbors(v):
+    if v in Graph_nodes:
+        return Graph_nodes[v]
+    else:
+        return []
+
+def heuristic(n):
+    H_dist = {"A": 11, "B": 6, "C": 99, "D": 1, "E": 7, "G": 0}
+    return H_dist[n]
+
+Graph_nodes = {"A": [("B", 2), ("E", 3)], "B": [("C", 1), ("G", 9)], "C": [], "E": [("D", 6)], "D": [("G", 1)]}
+mem_astaralgo("A", "G", 10)

@@ -1,0 +1,96 @@
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.tree import DecisionTreeClassifier
+
+data = datasets.load_wine(as_frame=True)
+X = data.data
+y = data.target  # Renamed Y to y
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=22)
+
+dtree = DecisionTreeClassifier(random_state=22)
+dtree.fit(X_train, y_train)
+
+y_train_pred = dtree.predict(X_train)  # Renamed Y_pred to y_train_pred
+y_test_pred = dtree.predict(X_test)  # Renamed Y_pred to y_test_pred
+
+print("Train data accuracy:", accuracy_score(y_true=y_train, y_pred=y_train_pred))
+print("Test data accuracy:", accuracy_score(y_true=y_test, y_pred=y_test_pred))
+
+
+
+
+
+
+import matplotlib.pyplot as plt
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.ensemble import BaggingClassifier
+
+data = datasets.load_wine(as_frame=True)
+X = data.data
+Y = data.target
+
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.25, random_state=22)
+
+estimator_range = [2, 4, 6, 8, 10, 12, 14, 16]
+scores = []
+
+for n_estimators in estimator_range:
+    # Create bagging classifier
+    clf = BaggingClassifier(n_estimators=n_estimators, random_state=22)
+    
+    # Fit the model
+    clf.fit(X_train, Y_train)
+    
+    # Compute accuracy score for the test set
+    y_pred = clf.predict(X_test)
+    score = accuracy_score(y_true=Y_test, y_pred=y_pred)
+    
+    # Append the score to the scores list
+    scores.append(score)
+
+# Generate the plot of scores against number of estimators
+plt.figure(figsize=(9, 6))
+plt.plot(estimator_range, scores)
+
+# Adjust labels and font (to make visible)
+plt.xlabel("n_estimators", fontsize=18)
+plt.ylabel("score", fontsize=18)
+plt.tick_params(labelsize=16)
+
+# Visualize plot
+plt.show()
+
+
+
+
+
+
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import BaggingClassifier
+from sklearn.tree import plot_tree
+import matplotlib.pyplot as plt
+
+# Load the wine dataset
+data = datasets.load_wine(as_frame=True)
+X = data.data
+Y = data.target
+
+# Split the data into training and testing sets
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.25, random_state=22)
+
+# Create and train a bagging classifier
+clf = BaggingClassifier(n_estimators=12, oob_score=True, random_state=22)
+clf.fit(X_train, Y_train)
+
+# Get class names as a list
+class_names = [str(target) for target in data.target_names]
+
+# Visualize the first decision tree in the bagging classifier
+plt.figure(figsize=(30, 20))
+plot_tree(clf.estimators_[0], feature_names=data.feature_names, class_names=class_names, filled=True)
+plt.show()

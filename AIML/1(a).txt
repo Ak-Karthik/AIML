@@ -1,0 +1,46 @@
+def bfs(G,S):
+	visited=[]
+	queue=[]
+	queue.append(S)
+	visited.append(S)
+	bfstree=[]
+	while queue:
+		t=queue.pop(0)
+		bfstree.append(t)
+		for n in G[t]:
+			if n not in visited:
+				visited.append(n)
+				queue.append(n)
+	return bfstree
+graph={}
+n=int(input ("Enter number of vertices in graph:"))
+for i in range(n):
+	neighbour=[]
+	node=input("Enter name of node:")
+	neighbour=input("Enter name of neighbour node ").split()
+	graph[node]=neighbour
+S=input("Enter starting node name:")
+print(graph)
+print("BFS traversal")
+print(bfs(graph, S))
+
+
+
+Enter number of vertices in graph:6
+Enter name of node:a
+Enter name of neighbour node b c
+Enter name of node:b
+Enter name of neighbour node a d f
+Enter name of node:c
+Enter name of neighbour node a d
+Enter name of node:d
+Enter name of neighbour node b c e f
+Enter name of node:e
+Enter name of neighbour node d
+Enter name of node:f
+Enter name of neighbour node b d
+Enter starting node name:a
+{'a': ['b', 'c'], 'b': ['a', 'd', 'f'], 'c': ['a', 'd'], 'd': ['b', 'c', 'e', 'f'], 'e': ['d'], 'f': ['b', 'd']}
+BFS traversal
+['a', 'b', 'c', 'd', 'f', 'e']
+​
